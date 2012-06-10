@@ -11,14 +11,14 @@ module ActsAsMessageable
       # Method make ActiveRecord::Base object messageable
       # @param [Symbol] :table_name - table name for messages
       def acts_as_messageable(options = {})
-        has_many  :received_messages_relation, 
-                  :as => :received_messageable, 
+        has_many  :received_messages_relation,
+                  :as => :received_messageable,
                   :class_name => options[:class_name] || "ActsAsMessageable::Message",
-                  :dependent => :nullify
-        has_many  :sent_messages_relation, 
+                  :dependent => options[:dependent] || :nullify
+        has_many  :sent_messages_relation,
                   :as => :sent_messageable,
                   :class_name => options[:class_name] || "ActsAsMessageable::Message",
-                  :dependent => :nullify
+                  :dependent => options[:dependent] || :nullify
 
         self.messages_class_name = (options[:class_name] || "ActsAsMessageable::Message").constantize
 
@@ -96,8 +96,8 @@ module ActsAsMessageable
 
       def reply_to(message, *args)
         current_user = self
-        
-        if message.participant?(current_user)          
+
+        if message.participant?(current_user)
           reply_message = send_message(message.from, *args)
           reply_message.parent = message
           reply_message.save
